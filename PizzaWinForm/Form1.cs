@@ -77,51 +77,158 @@ namespace PizzaWinForm
             saveFileDialog.FileName = "PizzaRendeles";
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                string leadottrendeles = Path.GetFileName(saveFileDialog.FileName);
-                try
+                string leadottrendeles = Path.GetFileName(saveFileDialog.FileName);     //Csak a fájl neve
+
+                if (File.Exists(saveFileDialog.FileName))
                 {
-                    using (StreamWriter sw = new StreamWriter(leadottrendeles))
+                    //Ha a fájl már létezik, akkor közöljük a felhasználóval, és eldöntheti, hogy felül akarja-e írni, vagy sem
+                    DialogResult result = MessageBox.Show("A fájl már létezik. Felülírja?", "Figyelmeztetés", MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    
+                    //Ha igen, akkor teljesítjük
+                    if (result == DialogResult.Yes)
                     {
-                        //Készpénz vagy Kártya
-                        if (radioButton_Keszpenz.Checked == true)
+                        try
                         {
-                            sw.WriteLine("Fizetési mód: Készpénz");
-                        }
-                        else if (radioButton_Kartya.Checked == true)
-                        {
-                            sw.WriteLine("Fizetési mód: Kártya");
-                        }
+                            using (StreamWriter sw = new StreamWriter(leadottrendeles, false))
+                            {
+                                //Készpénz vagy Kártya
+                                if (radioButton_Keszpenz.Checked == true)
+                                {
+                                    sw.WriteLine("Fizetési mód: Készpénz");
+                                }
+                                else if (radioButton_Kartya.Checked == true)
+                                {
+                                    sw.WriteLine("Fizetési mód: Kártya");
+                                }
 
-                        //Igényel-e számlát
-                        if (checkBox_Szamla.Checked == true)
-                        {
-                            sw.WriteLine("Számla: Igen");
-                        }
-                        else
-                        {
-                            sw.WriteLine("Számla: Nem");
-                        }
+                                //Igényel-e számlát
+                                if (checkBox_Szamla.Checked == true)
+                                {
+                                    sw.WriteLine("Számla: Igen");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("Számla: Nem");
+                                }
 
-                        //Kiválasztott pizza nevének kiírása
-                        sw.WriteLine($"Kiválasztott pizza: {textBox_KivalasztottPizza.Text}");
+                                //Kiválasztott pizza nevének kiírása
+                                sw.WriteLine($"Kiválasztott pizza: {textBox_KivalasztottPizza.Text}");
 
-                        //Kiválasztott mennyiség kiírása
-                        sw.WriteLine($"Kiválasztott mennyiség: {textBox_Darabszam.Text}db");
+                                //Kiválasztott mennyiség kiírása
+                                sw.WriteLine($"Kiválasztott mennyiség: {textBox_Darabszam.Text}db");
 
-                        //Végösszeg kiírása --- Ha a kiválasztott pizza neve megyegyezik a listában kiválasztott pizza nevével, akkor a végösszeg egyenlő lesz az adott pizza árával, majd megszorozzuk a megadott mennyiséggel
-                        double vegosszeg = 0;
-                        if (((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzanev == textBox_KivalasztottPizza.Text)
-                        {
-                            vegosszeg = ((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzaar;
-                            vegosszeg = vegosszeg * double.Parse(textBox_Darabszam.Text);
+                                //Végösszeg kiírása --- Ha a kiválasztott pizza neve megyegyezik a listában kiválasztott pizza nevével, akkor a végösszeg egyenlő lesz az adott pizza árával, majd megszorozzuk a megadott mennyiséggel
+                                double vegosszeg = 0;
+                                if (((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzanev == textBox_KivalasztottPizza.Text)
+                                {
+                                    vegosszeg = ((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzaar;
+                                    vegosszeg = vegosszeg * double.Parse(textBox_Darabszam.Text);
+                                }
+                                sw.WriteLine($"Végösszeg: {vegosszeg}Ft\n\n");
+                            }
+
                         }
-                        sw.WriteLine($"Végösszeg: {vegosszeg}Ft");
+                        catch (IOException ex)
+                        {
+                            MessageBox.Show("A művelet végrehajtása sikertelen!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
+                    else    //Ha nem akarja, akkor beleírjuk az adatokat
+                    {
+                        try
+                        {
+                            using (StreamWriter sw = new StreamWriter(leadottrendeles, true))
+                            {
+                                //Készpénz vagy Kártya
+                                if (radioButton_Keszpenz.Checked == true)
+                                {
+                                    sw.WriteLine("Fizetési mód: Készpénz");
+                                }
+                                else if (radioButton_Kartya.Checked == true)
+                                {
+                                    sw.WriteLine("Fizetési mód: Kártya");
+                                }
 
+                                //Igényel-e számlát
+                                if (checkBox_Szamla.Checked == true)
+                                {
+                                    sw.WriteLine("Számla: Igen");
+                                }
+                                else
+                                {
+                                    sw.WriteLine("Számla: Nem");
+                                }
+
+                                //Kiválasztott pizza nevének kiírása
+                                sw.WriteLine($"Kiválasztott pizza: {textBox_KivalasztottPizza.Text}");
+
+                                //Kiválasztott mennyiség kiírása
+                                sw.WriteLine($"Kiválasztott mennyiség: {textBox_Darabszam.Text}db");
+
+                                //Végösszeg kiírása --- Ha a kiválasztott pizza neve megyegyezik a listában kiválasztott pizza nevével, akkor a végösszeg egyenlő lesz az adott pizza árával, majd megszorozzuk a megadott mennyiséggel
+                                double vegosszeg = 0;
+                                if (((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzanev == textBox_KivalasztottPizza.Text)
+                                {
+                                    vegosszeg = ((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzaar;
+                                    vegosszeg = vegosszeg * double.Parse(textBox_Darabszam.Text);
+                                }
+                                sw.WriteLine($"Végösszeg: {vegosszeg}Ft\n\n");
+                            }
+
+                        }
+                        catch (IOException ex)
+                        {
+                            MessageBox.Show("A művelet végrehajtása sikertelen!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
                 }
-                catch (IOException ex)
+                else    //Ha nem létezik a fájl, akkor létrehozzuk, és beleírjuk az adatokat
                 {
-                    MessageBox.Show("A művelet végrehajtása sikertelen!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    try
+                    {
+                        using (StreamWriter sw = new StreamWriter(leadottrendeles, true))
+                        {
+                            //Készpénz vagy Kártya
+                            if (radioButton_Keszpenz.Checked == true)
+                            {
+                                sw.WriteLine("Fizetési mód: Készpénz");
+                            }
+                            else if (radioButton_Kartya.Checked == true)
+                            {
+                                sw.WriteLine("Fizetési mód: Kártya");
+                            }
+
+                            //Igényel-e számlát
+                            if (checkBox_Szamla.Checked == true)
+                            {
+                                sw.WriteLine("Számla: Igen");
+                            }
+                            else
+                            {
+                                sw.WriteLine("Számla: Nem");
+                            }
+
+                            //Kiválasztott pizza nevének kiírása
+                            sw.WriteLine($"Kiválasztott pizza: {textBox_KivalasztottPizza.Text}");
+
+                            //Kiválasztott mennyiség kiírása
+                            sw.WriteLine($"Kiválasztott mennyiség: {textBox_Darabszam.Text}db");
+
+                            //Végösszeg kiírása --- Ha a kiválasztott pizza neve megyegyezik a listában kiválasztott pizza nevével, akkor a végösszeg egyenlő lesz az adott pizza árával, majd megszorozzuk a megadott mennyiséggel
+                            double vegosszeg = 0;
+                            if (((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzanev == textBox_KivalasztottPizza.Text)
+                            {
+                                vegosszeg = ((Pizza)listBox_BeolvasottPizzak.SelectedItem).Pizzaar;
+                                vegosszeg = vegosszeg * double.Parse(textBox_Darabszam.Text);
+                            }
+                            sw.WriteLine($"Végösszeg: {vegosszeg}Ft\n\n");
+                        }
+
+                    }
+                    catch (IOException ex)
+                    {
+                        MessageBox.Show("A művelet végrehajtása sikertelen!", "Hiba", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
